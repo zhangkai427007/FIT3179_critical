@@ -1,0 +1,130 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Rail-only daily ridership for 2024 with dropdown, formatted tooltips, and mean annotation.",
+  "title": "Daily Rail Ridership — 2024 (Greater Kuala Lumpur)",
+  "width": 900,
+  "height": 420,
+  "data": {
+    "url": "https://raw.githubusercontent.com/zhangkai427007/fit3179_week10/main/ridership_headline.csv",
+    "format": {"type": "csv"}
+  },
+  "transform": [
+    {"filter": "datum.date >= datetime(2024,0,1) && datum.date < datetime(2025,0,1)"},
+    {
+      "fold": [
+        "rail_lrt_ampang",
+        "rail_mrt_kajang",
+        "rail_lrt_kj",
+        "rail_monorail",
+        "rail_mrt_pjy",
+        "rail_ets",
+        "rail_intercity",
+        "rail_komuter_utara",
+        "rail_tebrau",
+        "rail_komuter"
+      ],
+      "as": ["Mode", "Ridership"]
+    },
+    {
+      "calculate": "datum.Mode == 'rail_lrt_ampang' ? 'LRT Ampang' : datum.Mode == 'rail_mrt_kajang' ? 'MRT Kajang' : datum.Mode == 'rail_lrt_kj' ? 'LRT Kelana Jaya' : datum.Mode == 'rail_monorail' ? 'Monorail' : datum.Mode == 'rail_mrt_pjy' ? 'MRT Putrajaya' : datum.Mode == 'rail_ets' ? 'ETS' : datum.Mode == 'rail_intercity' ? 'Intercity' : datum.Mode == 'rail_komuter_utara' ? 'Komuter Utara' : datum.Mode == 'rail_tebrau' ? 'Tebra Shuttle' : datum.Mode == 'rail_komuter' ? 'KTM Komuter' : datum.Mode",
+      "as": "Line"
+    },
+    {"calculate": "toNumber(datum.Ridership)", "as": "RidershipNum"}
+  ],
+  "params": [
+    {
+      "name": "LineSelect",
+      "value": "All",
+      "bind": {
+        "input": "select",
+        "name": "Select line: ",
+        "options": [
+          "All",
+          "LRT Ampang",
+          "MRT Kajang",
+          "LRT Kelana Jaya",
+          "Monorail",
+          "MRT Putrajaya",
+          "ETS",
+          "Intercity",
+          "Komuter Utara",
+          "Tebra Shuttle",
+          "KTM Komuter"
+        ]
+      }
+    }
+  ],
+  "layer": [
+    {
+      "mark": {"type": "line", "interpolate": "monotone"},
+      "encoding": {
+        "x": {
+          "field": "date",
+          "type": "temporal",
+          "title": "Date",
+          "axis": {"labelAngle": -45, "format": "%b %d"}
+        },
+        "y": {
+          "field": "RidershipNum",
+          "type": "quantitative",
+          "title": "Daily Ridership (passengers)",
+          "axis": {"format": ","}
+        },
+        "color": {
+          "field": "Line",
+          "type": "nominal",
+          "title": "Rail Line",
+          "legend": {"orient": "right"}
+        },
+        "opacity": {
+          "condition": {"test": "LineSelect == 'All' || datum.Line == LineSelect", "value": 1},
+          "value": 0.08
+        },
+        "tooltip": [
+          {
+            "field": "date",
+            "type": "temporal",
+            "title": "Date",
+            "format": "%b %d, %Y"
+          },
+          {"field": "Line", "type": "nominal", "title": "Rail Line"},
+          {
+            "field": "RidershipNum",
+            "type": "quantitative",
+            "title": "Ridership (passengers)",
+            "format": ","
+          }
+        ]
+      }
+    },
+    {
+      "transform": [
+        {"aggregate": [{"op": "mean", "field": "RidershipNum", "as": "meanRidership"}]}
+      ],
+      "mark": {"type": "rule", "color": "#d62728", "strokeWidth": 1.5, "opacity": 0.9},
+      "encoding": {"y": {"field": "meanRidership", "type": "quantitative"}}
+    },
+    {
+      "transform": [
+        {"aggregate": [{"op": "mean", "field": "RidershipNum", "as": "meanRidership"}]},
+        {"calculate": "datetime(2024, 11, 30)", "as": "_xpos"}
+      ],
+      "mark": {
+        "type": "text",
+        "align": "right",
+        "dx": -6,
+        "dy": -6,
+        "color": "#d62728",
+        "fontWeight": "bold"
+      },
+      "encoding": {
+        "x": {"field": "_xpos", "type": "temporal"},
+        "y": {"field": "meanRidership", "type": "quantitative"},
+        "text": {
+          "signal": "'Average: ' + format(datum.meanRidership, ',') + ' passengers'"
+        }
+      }
+    }
+  ],
+  "config": {"view": {"stroke": "transparent"}, "background": "#ffffff"}
+}
