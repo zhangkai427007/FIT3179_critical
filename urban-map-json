@@ -1,0 +1,112 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Greater Kuala Lumpur Klang Valley Urban Rail Network — 2025",
+    "fontSize": 16,
+    "subtitle": "Kuala Lumpur, Selangor, Putrajaya (Population + Urban lines)",
+    "subtitleFontStyle": "italic"
+  },
+  "width": 650,
+  "height": 600,
+  "projection": {
+    "type": "mercator",
+    "center": [101.69, 3.13],
+    "scale": 35000
+  },
+  "layer": [
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/geoBoundaries-MYS-ADM2.topojson",
+        "format": {"type": "topojson", "feature": "MYSADM2gbOpen"}
+      },
+      "transform": [
+        {
+          "calculate": "datum.properties.shapeName === 'Kuala Lumpur' ? 'W.P. Kuala Lumpur' : datum.properties.shapeName === 'Putrajaya' ? 'W.P. Putrajaya' : datum.properties.shapeName",
+          "as": "TopoMatch"
+        },
+        {
+          "lookup": "TopoMatch",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/population_small_clean.csv",
+              "format": {"type": "csv", "parse": {"population_clean": "number"}}
+            },
+            "key": "district",
+            "fields": ["state", "population_clean"]
+          }
+        },
+        {"calculate": "toNumber(datum.population_clean)", "as": "population_num"},
+        {"filter": "datum.state === 'Selangor' || datum.state === 'W.P. Kuala Lumpur' || datum.state === 'W.P. Putrajaya'"}
+      ],
+      "mark": {"type": "geoshape", "stroke": "#ffffff", "strokeWidth": 0.6},
+      "encoding": {
+        "color": {
+          "field": "population_num",
+          "type": "quantitative",
+          "title": "Population (Cleaned)",
+          "scale": {"scheme": "blues"}
+        },
+        "tooltip": [
+          {"field": "properties.shapeName", "type": "nominal", "title": "District"},
+          {"field": "state", "type": "nominal", "title": "State/Region"},
+          {"field": "population_num", "type": "quantitative", "title": "Population", "format": ".1f"}
+        ]
+      }
+    },
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/finalroute.geojson",
+        "format": {"property": "features"}
+      },
+      "transform": [
+        {"flatten": ["geometry.coordinates"]},
+        {"calculate": "datum['geometry.coordinates'][0]", "as": "lon"},
+        {"calculate": "datum['geometry.coordinates'][1]", "as": "lat"}
+      ],
+      "mark": {"type": "line", "strokeWidth": 2, "opacity": 0.8},
+      "encoding": {
+        "longitude": {"field": "lon", "type": "quantitative"},
+        "latitude": {"field": "lat", "type": "quantitative"},
+        "detail": {"field": "properties.name"},
+        "color": {
+          "field": "properties.network",
+          "type": "nominal",
+          "legend": {"title": "Urban Rail Network"},
+          "scale": {
+            "domain": ["Rapid KL", "MRT", "KL Monorail", "KTM Komuter"],
+            "range": ["#e0115f", "#1f78b4", "#69a74c", "#003366"]
+          }
+        },
+        "tooltip": {"field": "properties.name", "title": "Line Name"}
+      }
+    },
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/export.json",
+        "format": {"property": "features"}
+      },
+      "mark": {"type": "circle", "opacity": 0.85, "size": 25},
+      "encoding": {
+        "longitude": {"field": "geometry.coordinates[0]", "type": "quantitative"},
+        "latitude": {"field": "geometry.coordinates[1]", "type": "quantitative"},
+        "tooltip": [
+          {"field": "properties.name", "title": "Station Name"},
+          {"field": "properties.network", "title": "Network"}
+        ],
+        "color": {
+          "field": "properties.network",
+          "type": "nominal",
+          "legend": {"title": "Urban Rail Network"},
+          "scale": {
+            "domain": ["Rapid KL", "MRT", "KL Monorail", "KTM Komuter"],
+            "range": ["#e0115f", "#1f78b4", "#69a74c", "#003366"]
+          }
+        }
+      }
+    }
+  ],
+  "config": {
+    "view": {"stroke": "transparent"},
+    "background": "#ADD8E6"
+  }
+}
