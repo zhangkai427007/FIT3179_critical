@@ -1,0 +1,12 @@
+state,district,date,sex,age,ethnicity,population,District_clean,population_clean,TopoMatch
+Selangor,Gombak,2024-01-01,both,overall,overall,980.3,Gombak,980.3,Gombak
+Selangor,Klang,2024-01-01,both,overall,overall,1174.9,Klang,1174.9,Klang
+Selangor,Kuala Langat,2024-01-01,both,overall,overall,326.3,Kuala Langat,326.3,Kuala Langat
+Selangor,Kuala Selangor,2024-01-01,both,overall,overall,298.4,Kuala Selangor,298.4,Kuala Selangor
+Selangor,Petaling,2024-01-01,both,overall,overall,2360.0,Petaling,2360.0,Petaling
+Selangor,Sabak Bernam,2024-01-01,both,overall,overall,110.3,Sabak Bernam,110.3,Sabak Bernam
+Selangor,Sepang,2024-01-01,both,overall,overall,346.9,Sepang,346.9,Sepang
+Selangor,Ulu Langat,2024-01-01,both,overall,overall,1508.1,Ulu Langat,1508.1,Ulu Langat
+Selangor,Ulu Selangor,2024-01-01,both,overall,overall,258.1,Ulu Selangor,258.1,Ulu Selangor
+W.P. Kuala Lumpur,W.P. Kuala Lumpur,2024-01-01,both,overall,overall,2067.5,W.P. Kuala Lumpur,2067.5,W.P. Kuala Lumpur
+W.P. Putrajaya,W.P. Putrajaya,2024-01-01,both,overall,overall,120.3,W.P. Putrajaya,120.3,W.P. Putrajaya
