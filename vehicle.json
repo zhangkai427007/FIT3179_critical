@@ -1,0 +1,60 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "title": {
+    "text": "Greater Kuala Lumpur Monthly Vehicle Count",
+    "subtitle": "Kuala Lumpur, Selangor, Putrajaya (2015–2025)",
+    "fontSize": 16,
+    "subtitleFontStyle": "italic"
+  },
+  "data": {
+    "url": "https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/KL_vehicle_monthly_counts.csv"
+  },
+  "params": [
+    {
+      "name": "stateFilter",
+      "value": "All",
+      "bind": {
+        "input": "select",
+        "options": ["All", "W.P. Kuala Lumpur", "Selangor", "W.P. Putrajaya"],
+        "labels": ["All", "Kuala Lumpur", "Selangor", "Putrajaya"],
+        "name": "Select State"
+      }
+    }
+  ],
+  "transform": [
+    {
+      "filter": "stateFilter === 'All' || datum.state === stateFilter"
+    }
+  ],
+  "mark": {
+    "type": "line",
+    "point": true
+  },
+  "encoding": {
+    "x": {
+      "field": "year_month_dt",
+      "type": "temporal",
+      "title": "Month"
+    },
+    "y": {
+      "field": "vehicle_count_num",
+      "type": "quantitative",
+      "title": "Vehicle Count"
+    },
+    "color": {
+      "field": "state",
+      "type": "nominal",
+      "legend": {"title": "State"}
+    },
+    "tooltip": [
+      {"field": "year_month_dt", "title": "Month", "type": "temporal"},
+      {"field": "vehicle_count_num", "title": "Vehicle Count"},
+      {"field": "state", "title": "State"}
+    ]
+  },
+  "config": {
+    "view": {"stroke": "transparent"},
+    "background": "#f4f4f4"
+  }
+}
+
