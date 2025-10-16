@@ -2,96 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Greater Kuala Lumpur Transport Visualisations</title>
+  <title>Greater Kuala Lumpur — Urban Rail Analysis</title>
 
   <!-- Vega / Vega-Lite / TopoJSON / Vega-Embed -->
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://unpkg.com/topojson-client@3/dist/topojson-client.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 
   <style>
-    body { font-family: Arial, sans-serif; margin: 28px; background:#fafafa; color:#111; }
-    h1 { text-align:center; margin-bottom:6px; }
-    .section-title { text-align:center; margin-top:28px; margin-bottom:6px; font-size:18px; }
+    body { font-family: Arial, sans-serif; margin: 28px; background:#f7f7f7; color:#111; }
+    h1 { text-align:center; margin-bottom:12px; color:#1f4e79; }
+    .section-title { text-align:center; margin-top:36px; margin-bottom:6px; font-size:1.2em; font-weight:bold; }
+    .section-subtitle { text-align:center; margin-bottom:12px; font-style:italic; color:#333; }
     .vis { display:flex; justify-content:center; margin: 10px 0 30px; }
-    .annotation { max-width:900px; margin: 0 auto 20px; font-size:14px; color:#333; line-height:1.5; }
+    .annotation { max-width:900px; margin: 0 auto 30px; font-size:14px; line-height:1.5em; color:#222; background:#fff; padding:12px; border-radius:6px; border:1px solid #ddd;}
   </style>
 </head>
 <body>
 
-<h1>Greater Kuala Lumpur — Urban Rail Analysis</h1>
+  <h1>Greater Kuala Lumpur — Rail Network Analysis</h1>
 
-<div class="section-title">1. Urban Rail Network Map</div>
-<div class="annotation">
-  The rail network in Kuala Lumpur is densest within the city, especially around central KL and Petaling. Interestingly, areas like Petaling have a dense network even though their population is not the highest, suggesting uneven urban development and suboptimal transport planning in the metropolitan region.
-</div>
-<div class="vis" id="map_vis">Loading map…</div>
+  <!-- 城镇地图 -->
+  <div class="section-title">Urban Rail Network Map</div>
+  <div class="section-subtitle">KL region rail density & urban distribution</div>
+  <div class="vis" id="map_vis">Loading map…</div>
+  <div class="annotation">
+    The rail network in Kuala Lumpur is the densest in the metropolitan area. 
+    Interestingly, the Petaling region has a dense rail network despite not being the most populous. 
+    This suggests that urban rail development is uneven and may lack systematic planning across the Klang Valley.
+  </div>
 
-<div class="section-title">2. Daily Rail Ridership by Line</div>
-<div class="annotation">
-  Ridership across all lines is relatively stable. The LRT Kelana Jaya line has the highest daily ridership, which aligns with the map showing it passes through central KL, an important urban corridor.
-</div>
-<div class="vis" id="ridership_vis">Loading ridership chart…</div>
+  <!-- 各线路客流量 -->
+  <div class="section-title">Daily Rail Ridership — 2024</div>
+  <div class="section-subtitle">Passenger volume per line</div>
+  <div class="vis" id="ridership_vis">Loading ridership chart…</div>
+  <div class="annotation">
+    Ridership across lines is relatively stable. The LRT Kelana Jaya line carries the most passengers and passes through key areas of Kuala Lumpur, highlighting its importance in the network.
+  </div>
 
-<div class="section-title">3. Vehicle Ownership per Region</div>
-<div class="annotation">
-  Monthly vehicle counts indicate trends in urban mobility. The data shows the level of vehicle ownership across key areas in Greater Kuala Lumpur, highlighting the reliance on private transport.
-</div>
-<div class="vis" id="vehicle_vis">Loading vehicle chart…</div>
+  <!-- 拥车量 -->
+  <div class="section-title">Vehicle Ownership Trends — KL Region</div>
+  <div class="section-subtitle">Monthly vehicle counts per area</div>
+  <div class="vis" id="vehicle_vis">Loading vehicle chart…</div>
+  <div class="annotation">
+    Vehicle ownership trends show gradual growth across the Kuala Lumpur metropolitan area. Monitoring vehicle density alongside rail ridership helps identify areas with potential traffic pressure.
+  </div>
 
 <script>
-(async function(){
+  // 城镇地图
+  vegaEmbed('#map_vis', 'https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/urban-map-json', {
+    renderer:'svg', actions:true
+  }).then(res=>console.log('Map loaded')).catch(err=>console.error('Map error', err));
 
-  // 1️⃣ Urban Map
-  vegaEmbed('#map_vis', 'https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/urban-map-json', {renderer:'svg', actions:true})
-    .then(() => console.log('Map embedded successfully'))
-    .catch(err => {console.error(err); document.getElementById('map_vis').textContent='Failed to load map';});
+  // 客流量图
+  vegaEmbed('#ridership_vis', 'https://raw.githubusercontent.com/zhangkai427007/fit3179_week10/main/ridership.json', {
+    renderer:'svg', actions:true
+  }).then(res=>console.log('Ridership chart loaded')).catch(err=>console.error('Ridership error', err));
 
-  // 2️⃣ Ridership Line Chart
-  vegaEmbed('#ridership_vis', {
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "width": 700, "height": 400,
-    "data": {
-      "url": "https://raw.githubusercontent.com/zhangkai427007/fit3179_week10/main/ridership.json"
-    },
-    "mark": {"type":"line", "point":true},
-    "encoding": {
-      "x": {"field":"month", "type":"temporal", "title":"Month"},
-      "y": {"field":"ridership", "type":"quantitative", "title":"Daily Ridership"},
-      "color": {"field":"line", "type":"nominal", "title":"Line"},
-      "tooltip": [
-        {"field":"line","type":"nominal","title":"Line"},
-        {"field":"month","type":"temporal","title":"Month"},
-        {"field":"ridership","type":"quantitative","title":"Ridership"}
-      ]
-    }
-  }).then(() => console.log('Ridership chart embedded'))
-    .catch(err => {console.error(err); document.getElementById('ridership_vis').textContent='Failed to load ridership';});
+  // 拥车量图
+  vegaEmbed('#vehicle_vis', 'https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/vehicle.json', {
+    renderer:'svg', actions:true
+  }).then(res=>console.log('Vehicle chart loaded')).catch(err=>console.error('Vehicle error', err));
 
-  // 3️⃣ Vehicle Ownership Line Chart
-  vegaEmbed('#vehicle_vis', {
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "width": 700, "height": 400,
-    "data": {
-      "url": "https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/vehicle.json"
-    },
-    "mark": {"type":"line", "point":true},
-    "encoding": {
-      "x": {"field":"month", "type":"temporal", "title":"Month"},
-      "y": {"field":"vehicle_count", "type":"quantitative", "title":"Number of Vehicles"},
-      "color": {"field":"state", "type":"nominal", "title":"Region"},
-      "tooltip": [
-        {"field":"state","type":"nominal","title":"Region"},
-        {"field":"month","type":"temporal","title":"Month"},
-        {"field":"vehicle_count","type":"quantitative","title":"Vehicle Count"}
-      ]
-    }
-  }).then(() => console.log('Vehicle chart embedded'))
-    .catch(err => {console.error(err); document.getElementById('vehicle_vis').textContent='Failed to load vehicle chart';});
-
-})();
 </script>
-
 </body>
 </html>
+
 
