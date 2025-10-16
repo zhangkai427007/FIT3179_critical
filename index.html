@@ -1,16 +1,81 @@
-<div class="section-title">Monthly Rail Ridership</div>
-<div class="section-desc">
-  Ridership across each line is relatively stable over time. Among all lines, the LRT Kelana Jaya line has the highest ridership, passing through key areas of Kuala Lumpur.
-</div>
-<div class="vis" id="ridership_vis"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Greater Kuala Lumpur Transport Visualisations</title>
+
+  <!-- Vega / Vega-Lite / TopoJSON / Vega-Embed -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://unpkg.com/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; margin: 28px; background:#fafafa; color:#111; }
+    h1 { text-align:center; margin-bottom:6px; }
+    .section-title { text-align:center; margin-top:28px; margin-bottom:6px; font-size:18px; }
+    .section-desc { text-align:center; margin-bottom:16px; max-width:850px; margin-left:auto; margin-right:auto; font-size:14px; color:#333; }
+    .vis { display:flex; justify-content:center; margin: 10px 0 30px; }
+    #dbg { background:#fff; border:1px solid #ddd; padding:8px; border-radius:6px; max-width:980px; margin:12px auto; white-space:pre-wrap; display:none; font-size:13px; color:#444;}
+  </style>
+</head>
+<body>
+  <h1>Greater Kuala Lumpur — Rail Map, Ridership & Vehicle Count</h1>
+
+  <!-- Urban Rail Map -->
+  <div class="section-title">Urban Rail Network Map</div>
+  <div class="section-desc">
+    The Kuala Lumpur metropolitan area has the densest rail network, even denser than Petaling, which has the largest population. This highlights uneven urban development and lack of scientific planning in the metropolitan region.
+  </div>
+  <div class="vis" id="map_vis">Loading map…</div>
+
+  <!-- Ridership Chart -->
+  <div class="section-title">Monthly Rail Ridership — 2024</div>
+  <div class="section-desc">
+    Ridership across each line is relatively stable. The LRT Kelana Jaya line has the highest ridership, serving key areas in Kuala Lumpur.
+  </div>
+  <div class="vis" id="ridership_vis">Loading ridership chart…</div>
+
+  <!-- Vehicle Count Chart -->
+  <div class="section-title">Monthly Vehicle Count — Greater Kuala Lumpur</div>
+  <div class="section-desc">
+    Vehicle ownership trends over time show the distribution and growth of vehicles per region in the metropolitan area.
+  </div>
+  <div class="vis" id="vehicle_vis">Loading vehicle chart…</div>
+
+  <div id="dbg"></div>
 
 <script>
+  function dbg(msg){
+    try {
+      const el = document.getElementById('dbg');
+      el.style.display='block';
+      el.textContent += msg + "\n";
+    } catch(e){
+      console.log(msg);
+    }
+  }
+
+  // JSON paths (replace with raw URLs if needed)
+  const mapSpecPath = 'urban-map-json';
+  const ridershipDataPath = 'https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/ridership.json';
+  const vehicleDataPath = 'https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/vehicle.json';
+
+  // Embed Urban Map
+  vegaEmbed('#map_vis', mapSpecPath, {renderer:'svg', actions:true})
+    .then(res => dbg('Map embedded successfully.'))
+    .catch(err => {
+      dbg('Map embed error: ' + (err && err.message ? err.message : String(err)));
+      document.getElementById('map_vis').textContent = 'Failed to load the map. See console/dbg for details.';
+    });
+
+  // Embed Ridership Chart
   const ridershipSpec = {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "description": "Monthly ridership per line",
     "width": 750, "height": 400,
-    "data": {"url": "https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/ridership.json"},
-    "mark": {"type":"line", "point":true},
+    "data": {"url": ridershipDataPath},
+    "mark": {"type":"line","point":true},
     "encoding": {
       "x": {"field":"month","type":"temporal","title":"Month"},
       "y": {"field":"ridership","type":"quantitative","title":"Ridership"},
@@ -21,23 +86,15 @@
       ]
     }
   };
-
   vegaEmbed('#ridership_vis', ridershipSpec, {renderer:'svg', actions:true});
-</script>
 
-<div class="section-title">Monthly Vehicle Count</div>
-<div class="section-desc">
-  Vehicle ownership in the Greater Kuala Lumpur area shows trends over the years, highlighting the distribution and growth of vehicles per region.
-</div>
-<div class="vis" id="vehicle_vis"></div>
-
-<script>
+  // Embed Vehicle Count Chart
   const vehicleSpec = {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "description": "Monthly vehicle count per state",
     "width": 750, "height": 400,
-    "data": {"url": "https://raw.githubusercontent.com/zhangkai427007/FIT3179_critical/main/vehicle.json"},
-    "mark": {"type":"line", "point":true},
+    "data": {"url": vehicleDataPath},
+    "mark": {"type":"line","point":true},
     "encoding": {
       "x": {"field":"month","type":"temporal","title":"Month"},
       "y": {"field":"vehicle_count","type":"quantitative","title":"Vehicle Count"},
@@ -48,6 +105,7 @@
       ]
     }
   };
-
   vegaEmbed('#vehicle_vis', vehicleSpec, {renderer:'svg', actions:true});
 </script>
+</body>
+</html>
